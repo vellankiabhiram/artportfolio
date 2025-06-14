@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sketchbook - Art Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h1>Art Portfolio</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="sketchbook.html">Sketchbook</a></li>
+                <li><a href="concept_art.html">Concept Art</a></li>
+                <li><a href="animation.html">Animation</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </div>
+    <button id="theme-toggle">🌙</button>
+</header>
+<main>
+    <h2 style="text-align:center;margin:20px 0">Sketchbook Gallery</h2>
+    <div class="gallery" id="gallery">
+        <!-- Images will be displayed here -->
+    </div>
+</main>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox">
+    <span class="close-btn">&times;</span>
+    <div class="arrow left-arrow">&#10094;</div>
+    <img class="lightbox-content" id="lightbox-img">
+    <div id="lightbox-caption"></div>
+    <div class="arrow right-arrow">&#10095;</div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Art Portfolio</p>
+</footer>
+<script src="gallery.js"></script>
+</body>
+</html>

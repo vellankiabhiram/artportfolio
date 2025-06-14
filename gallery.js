@@ -16,7 +16,11 @@ async function fetchImgurAlbum(albumId) {
         }
         
         const data = await response.json();
-        images = data.data.map(image => image.link);
+        images = data.data.map(image => ({
+            url: image.link,
+            title: image.title || '',
+            description: image.description || ''
+        }));
         
         if (images.length === 0) {
             throw new Error('Album exists but contains no images');
@@ -31,27 +35,27 @@ async function fetchImgurAlbum(albumId) {
     }
 }
 
-function displayImages(imageUrls) {
+function displayImages(images) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';
     
-    if (imageUrls.length === 0) {
+    if (images.length === 0) {
         gallery.innerHTML = '<div class="error">No images found in the album</div>';
         return;
     }
     
-    imageUrls.forEach((imageUrl, index) => {
+    images.forEach((image, index) => {
         const imgContainer = document.createElement('div');
         imgContainer.className = 'gallery-item';
         
         const img = document.createElement('img');
-        img.src = imageUrl;
-        img.alt = 'Artwork';
+        img.src = image.url;
+        img.alt = image.title || 'Artwork';
         img.loading = 'lazy';
         
         img.addEventListener('click', function() {
             currentImageIndex = index;
-            openLightbox(imageUrl);
+            openLightbox(image);
         });
         
         imgContainer.appendChild(img);
@@ -59,7 +63,7 @@ function displayImages(imageUrls) {
     });
 }
 
-function openLightbox(imageUrl) {
+function openLightbox(image) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     
@@ -70,13 +74,35 @@ function openLightbox(imageUrl) {
     spinner.innerHTML = 'Loading...';
     lightbox.appendChild(spinner);
     
+    // Create caption element if it doesn't exist
+    let caption = document.getElementById('lightbox-caption');
+    if (!caption) {
+        caption = document.createElement('div');
+        caption.id = 'lightbox-caption';
+        lightbox.appendChild(caption);
+    }
+    
+    // Set caption text (title or description)
+    caption.textContent = image.title || image.description || '';
+    
     // Load image
     lightboxImg.onload = function() {
         lightbox.removeChild(spinner);
         lightboxImg.style.display = 'block';
+        
+        // Position caption 20px below the image
+        // Get image dimensions and position
+        const imgRect = lightboxImg.getBoundingClientRect();
+        const imgBottom = imgRect.bottom;
+        
+        // Set caption position
+        caption.style.position = 'absolute';
+        caption.style.top = (imgBottom + 20) + 'px';
+        caption.style.left = '50%';
+        caption.style.transform = 'translateX(-50%)';
     };
     
-    lightboxImg.src = imageUrl;
+    lightboxImg.src = image.url;
     lightbox.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
@@ -100,7 +126,11 @@ function showPrevImage() {
 // Theme switching functionality
 function setupThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (!themeToggle) return; // Exit if no toggle button
+    
+    // Get current theme from localStorage or default to light
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || 'light';
     
     // Set initial theme
     document.body.setAttribute('data-theme', currentTheme);
@@ -110,16 +140,52 @@ function setupThemeToggle() {
     themeToggle.addEventListener('click', () => {
         const currentTheme = document.body.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
         document.body.setAttribute('data-theme', newTheme);
         themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
         localStorage.setItem('theme', newTheme);
     });
 }
 
+// Initialize theme toggle on all pages
+document.addEventListener('DOMContentLoaded', function() {
+    setupThemeToggle();
+    
+    // Only initialize gallery if gallery element exists
+    if (document.getElementById('gallery')) {
+        initGallery();
+    }
+});
+
+// Map of page names to album IDs
+const albumIds = {
+    'index': '7LLqlEz',          // Existing home gallery
+    'sketchbook': '7LLqlEz', // Placeholder for sketchbook
+    'concept_art': '7LLqlEz',   // Placeholder for concept art
+    'animation': '7LLqlEz' , // Placeholder for animation
+};
+
+// Get current page name from URL
+function getPageName() {
+    const path = window.location.pathname;
+    return path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+}
+
 // Initialize the gallery
 (async function initGallery() {
-    const albumId = '7LLqlEz';
+    const pageName = getPageName();
+    const albumId = albumIds[pageName] || '7LLqlEz'; // Default to home if not found
+    
+    if (albumId.includes('PLACEHOLDER')) {
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = `
+            <div class="info">
+                <h3>Gallery Coming Soon</h3>
+                <p>This gallery is under construction. Check back later!</p>
+            </div>
+        `;
+        return;
+    }
+
     await fetchImgurAlbum(albumId);
     displayImages(images);
     
@@ -150,6 +216,4 @@ function setupThemeToggle() {
         }
     });
     
-    // Set up theme toggle
-    setupThemeToggle();
 })();
