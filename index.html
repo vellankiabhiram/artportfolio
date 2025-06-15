@@ -4,30 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
     <div class="header-content">
+        <button id="menu-toggle" class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
         <h1>Art Portfolio</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="sketchbook.html">Sketchbook</a></li>
-                <li><a href="concept_art.html">Concept Art</a></li>
-                <li><a href="animation.html">Animation</a></li>
-                <li><a href="about.html">About</a></li>
-            </ul>
-        </nav>
+        <button id="theme-toggle">🌙</button>
     </div>
-    <button id="theme-toggle">🌙</button>
 </header>
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <button id="close-sidebar">&times;</button>
+    </div>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="sketchbook.html">Sketchbook</a></li>
+        <li><a href="concept_art.html">Concept Art</a></li>
+        <li><a href="animation.html">Animation</a></li>
+        <li><a href="about.html">About</a></li>
+    </ul>
+</nav>
+
+<!-- Overlay -->
+<div id="sidebar-overlay"></div>
     <main>
+        <h2 style="text-align:center;margin:20px 0">Home Gallery</h2>
         <div class="gallery" id="gallery">
             <!-- Images will be displayed here -->
         </div>
-        
-        
 </main>
 
 <!-- Lightbox Modal -->
@@ -43,5 +56,6 @@
     <p>&copy; 2025 Art Portfolio</p>
 </footer>
     <script src="gallery.js"></script>
+    <script src="menu.js"></script>
 </body>
 </html>

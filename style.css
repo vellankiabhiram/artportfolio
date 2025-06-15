@@ -1,13 +1,34 @@
 :root {
     --bg-primary: #f4f4f4;
     --text-primary: #333;
-    --header-bg: #333;
-    --header-text: #fff;
+    --header-bg: #fff;  /* Light background for light mode */
+    --header-text: #333; /* Dark text for light mode */
     --card-bg: #fff;
     --error-bg: #ffebee;
     --error-text: #b71c1c;
     --arrow-bg: rgba(0,0,0,0.3);
     --arrow-hover-bg: rgba(0,0,0,0.7);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* Standardize site title size */
+h1 {
+    font-size: 2rem; /* Consistent size for all pages */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem; /* Slightly smaller on mobile */
+    }
 }
 
 [data-theme="dark"] {
@@ -23,7 +44,7 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Lato', sans-serif;
     margin: 0;
     padding: 0;
     background-color: var(--bg-primary);
@@ -42,13 +63,25 @@ body {
 }
 
 header {
-    background-color: var(--header-bg);
-    color: var(--header-text);
+    background: rgba(255, 255, 255, 0.9); /* Light semi-transparent background for light mode */
+    backdrop-filter: blur(10px); /* Glass effect */
+    color: #333; /* Dark text for better contrast */
     padding: 0 20px;
+    height: 80px; /* Fixed height */
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] header {
+    background: rgba(30, 30, 30, 0.8); /* Dark background for dark mode */
+    color: #fff; /* White text for dark mode */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .header-content {
@@ -58,7 +91,7 @@ header {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px 0;
+    height: 100%; /* Fill parent height */
 }
 
 nav ul {
@@ -78,7 +111,13 @@ nav a {
     font-weight: 500;
     padding: 5px 10px;
     border-radius: 4px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Active page indicator */
+nav a.active {
+    background-color: rgba(0,0,0,0.1);
+    font-weight: bold;
 }
 
 nav a:hover {
@@ -174,7 +213,7 @@ footer {
     column-count: 3;
     column-gap: 20px;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto 0; /* Added top margin for consistency */
 }
 
 .gallery-item {
@@ -199,9 +238,8 @@ footer {
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
-.gallery-item img:hover {
+.gallery-item:hover img {
     transform: scale(1.02);
-    cursor: pointer;
 }
 
 @media (max-width: 1200px) {
@@ -222,6 +260,7 @@ footer {
     }
 }
 
+
 /* Lightbox Styles */
 .lightbox {
     display: none;
@@ -238,11 +277,12 @@ footer {
 
 .lightbox-content {
     display: block;
-    width: 45vw;
+    max-width: 85%; /* More responsive */
+    width: auto;
     height: auto;
-    max-height: 70vh;
+    max-height: 80vh;
     position: absolute;
-    top: 45%; /* Adjusted to make space for caption */
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     object-fit: contain;
@@ -346,6 +386,143 @@ footer {
 
 .right-arrow {
     right: 20px;
+}
+
+/* Hamburger Menu Styles */
+/* Hamburger Menu Styles */
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.hamburger .bar {
+    width: 30px;
+    height: 3px;
+    background: var(--header-text);
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+}
+
+.hamburger.active .bar:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.hamburger.active .bar:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+/* Sidebar Styles */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -240px;
+    width: 240px;
+    height: 100%;
+    padding: 20px;
+    z-index: 900; /* Below header but above content */
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    background-color: rgba(255,255,255,0.9); /* Semi-transparent */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+}
+
+#sidebar.active {
+    transform: translateX(240px);
+}
+
+[data-theme="dark"] #sidebar {
+    background-color: rgba(42,42,42,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+#sidebar .sidebar-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+#close-sidebar {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+#sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: block; /* Ensure block-level display */
+}
+
+#sidebar li {
+    display: block; /* Force vertical stacking */
+    float: none; /* Prevent floating */
+    width: 100%; /* Full width for easier clicking */
+    margin: 0 0 20px 0; /* Vertical spacing only */
+}
+
+#sidebar a {
+    display: block; /* Make links fill entire space */
+    padding: 15px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#sidebar a:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+#sidebar a.active {
+    background-color: rgba(0,0,0,0.2);
+    font-weight: bold;
+}
+
+/* Lightbox z-index adjustment */
+.lightbox {
+    z-index: 1001; /* Above sidebar */
+}
+
+/* Remove overlay since it's no longer needed */
+#sidebar-overlay {
+    display: none;
+}
+
+/* Header adjustments for hamburger menu */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%; /* Fill parent height */
+    position: relative; /* For centered title */
+}
+
+.header-content h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* Contact form styles */
