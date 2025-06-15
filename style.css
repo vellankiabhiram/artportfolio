@@ -29,6 +29,46 @@ h1 {
     h1 {
         font-size: 1.5rem; /* Slightly smaller on mobile */
     }
+    
+    /* About page mobile adjustments */
+    .bio {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .bio-image {
+        order: -1; /* Image above text */
+        margin-bottom: 20px;
+    }
+    
+    .placeholder-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .art-statement, .exhibitions {
+        padding: 15px;
+    }
+    
+    .exhibitions ul {
+        padding-left: 20px;
+    }
+    
+    /* Contact form adjustments */
+    .contact-section {
+        padding: 20px;
+    }
+    
+    .form-group input, 
+    .form-group textarea {
+        padding: 15px;
+        font-size: 16px;
+    }
+    
+    .submit-btn {
+        padding: 15px;
+        font-size: 18px;
+    }
 }
 
 [data-theme="dark"] {
@@ -291,6 +331,7 @@ footer {
     border: none;
     cursor: pointer;
     transition: opacity 0.3s ease;
+    z-index: 1002; /* Ensure below arrows */
 }
 
 #lightbox-caption {
@@ -373,6 +414,7 @@ footer {
     justify-content: center;
     width: 60px;
     height: 60px;
+    z-index: 1003; /* Ensure above images */
 }
 
 .arrow:hover {
