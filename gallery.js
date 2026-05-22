@@ -132,13 +132,17 @@ function displayImages(images) {
         imgContainer.setAttribute('tabindex', '0');
         imgContainer.setAttribute('aria-label', `View ${image.title || 'artwork'} in full size`);
         
+        // Check if this is a video based on type or extension
+        const isVideo = image.type.startsWith('video/') || 
+                       /\.(mp4|webm|ogg)$/i.test(image.url);
+        
         const img = document.createElement('img');
         
         // Extract image ID from URL
         const id = image.url.split('/').pop().split('.')[0];
         
         // Use WebP if supported, otherwise use JPEG
-        if (supportsWebP) {
+        if (supportsWebP && !isVideo) {
             img.dataset.src = `https://i.imgur.com/${id}l.webp`;
             img.dataset.srcset = `https://i.imgur.com/${id}m.webp 320w, https://i.imgur.com/${id}l.webp 640w, https://i.imgur.com/${id}h.webp 1024w`;
         } else {
@@ -156,10 +160,27 @@ function displayImages(images) {
         img.style.height = 'auto';
         img.style.display = 'block';
         
+        // Create play button overlay for videos
+        if (isVideo) {
+            imgContainer.classList.add('video-item');
+            const playButton = document.createElement('div');
+            playButton.className = 'play-button';
+            playButton.innerHTML = '▶';
+            playButton.setAttribute('aria-label', 'Play video');
+            imgContainer.appendChild(playButton);
+            
+            // Update aria-label to indicate it's a video
+            imgContainer.setAttribute('aria-label', `Play video: ${image.title || 'artwork'}`);
+        }
+        
         // Click handler
         const handleClick = () => {
             currentImageIndex = index;
-            openLightbox(image);
+            if (isVideo) {
+                openVideoLightbox(image.url, image.title || '');
+            } else {
+                openLightbox(image);
+            }
         };
         
         img.addEventListener('click', handleClick);
@@ -175,6 +196,11 @@ function displayImages(images) {
         imgContainer.appendChild(img);
         gallery.appendChild(imgContainer);
         
+        // Mark as loaded after image loads for staggered animation
+        img.addEventListener('load', () => {
+            imgContainer.classList.add('loaded');
+        });
+
         // Start observing
         lazyLoadObserver.observe(img);
     });
