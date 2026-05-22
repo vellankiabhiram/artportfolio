@@ -1,18 +1,25 @@
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('sidebar');
-    const closeSidebar = document.getElementById('close-sidebar');
+    const closeSidebarBtn = document.getElementById('close-sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
+    
+    // Exit early if sidebar elements don't exist
+    if (!menuToggle || !sidebar) return;
     
     // Function to save sidebar state
     function saveSidebarState(isOpen) {
-        localStorage.setItem('sidebarState', isOpen ? 'open' : 'closed');
+        try {
+            localStorage.setItem('sidebarState', isOpen ? 'open' : 'closed');
+        } catch (e) {
+            console.warn('LocalStorage not available');
+        }
     }
     
     // Function to open sidebar
     function openSidebar() {
         sidebar.classList.add('active');
-        sidebarOverlay.classList.add('active');
+        if (sidebarOverlay) sidebarOverlay.classList.add('active');
         menuToggle.classList.add('active');
         saveSidebarState(true);
     }
@@ -20,15 +27,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to close sidebar
     function closeSidebarFn() {
         sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
         menuToggle.classList.remove('active');
         saveSidebarState(false);
     }
     
     // Check saved state on load
-    const savedState = localStorage.getItem('sidebarState');
-    if (savedState === 'open') {
-        openSidebar();
+    try {
+        const savedState = localStorage.getItem('sidebarState');
+        if (savedState === 'open') {
+            openSidebar();
+        }
+    } catch (e) {
+        console.warn('LocalStorage not available');
     }
     
     // Toggle sidebar
@@ -40,9 +51,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Close sidebar
-    closeSidebar.addEventListener('click', closeSidebarFn);
-    sidebarOverlay.addEventListener('click', closeSidebarFn);
+    // Close sidebar button
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', closeSidebarFn);
+    }
+    
+    // Close on overlay click
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebarFn);
+    }
     
     // Close on escape key
     document.addEventListener('keydown', function(e) {
@@ -51,38 +68,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Update active nav link
-    function setActiveNavLink() {
-        const currentPath = window.location.pathname.split('/').pop();
-        const navLinks = document.querySelectorAll('#sidebar a');
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
-    }
-    
-    // Add click event to nav links (only prevent default for same-page anchors)
+    // Add smooth scroll and prevent closing on navigation
     const navLinks = document.querySelectorAll('#sidebar a');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Only prevent default for same-page anchors
             const href = this.getAttribute('href');
-            if (href.startsWith('#')) {
+            
+            // Only prevent default for same-page anchors
+            if (href && href.startsWith('#')) {
                 e.preventDefault();
                 const target = document.querySelector(href);
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth' });
                 }
             }
-            // Do NOT close sidebar after navigation
-            // But save state as open since we're staying on same page
+            // Save state as open since we're navigating
             saveSidebarState(true);
         });
     });
-    
-    // Initialize
-    setActiveNavLink();
 });

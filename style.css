@@ -8,6 +8,9 @@
     --error-text: #b71c1c;
     --arrow-bg: rgba(0,0,0,0.3);
     --arrow-hover-bg: rgba(0,0,0,0.7);
+    --accent-color: #667eea;
+    --accent-hover: #5a6fd6;
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Typography */
@@ -81,6 +84,8 @@ h1 {
     --error-text: #ffcccc;
     --arrow-bg: rgba(255,255,255,0.3);
     --arrow-hover-bg: rgba(255,255,255,0.7);
+    --accent-color: #818cf8;
+    --accent-hover: #6366f1;
 }
 
 body {
@@ -263,23 +268,36 @@ footer {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.4s var(--transition-smooth), box-shadow 0.4s var(--transition-smooth);
+    cursor: pointer;
 }
 
 .gallery-item img {
     display: block;
     width: 100%;
     height: auto;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s var(--transition-smooth);
 }
 
 .gallery-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
 }
 
 .gallery-item:hover img {
-    transform: scale(1.02);
+    transform: scale(1.05);
+}
+
+/* Loading skeleton animation */
+.skeleton {
+    background: linear-gradient(90deg, var(--card-bg) 25%, var(--bg-primary) 50%, var(--card-bg) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 @media (max-width: 1200px) {
@@ -335,18 +353,117 @@ footer {
 }
 
 #lightbox-caption {
-    /* Position is now set dynamically in JavaScript */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     max-width: 80%;
     color: white;
     text-align: center;
-    padding: 6px 12px;
-    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.8);
     border-radius: 4px;
-    font-size: 14px;
-    z-index: 1002; /* Ensure it's above the image */
+    font-size: 15px;
+    z-index: 1002;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#lightbox-caption.show {
+    opacity: 1;
+}
+
+/* Video container for lightbox */
+.lightbox-video-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 85%;
+    max-height: 80vh;
+    z-index: 1002;
+}
+
+.lightbox-video {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Video gallery styles */
+.video-item {
+    position: relative;
+}
+
+.video-thumbnail {
+    position: relative;
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.4s var(--transition-smooth);
+}
+
+.video-item:hover .video-thumbnail img {
+    transform: scale(1.05);
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.video-item:hover .play-button {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-info {
+    padding: 12px;
+    background: var(--card-bg);
+}
+
+.video-info h3 {
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+}
+
+.duration {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
 }
 
 .spinner {
@@ -408,18 +525,30 @@ footer {
     user-select: none;
     background-color: var(--arrow-bg);
     border-radius: 50%;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 60px;
     height: 60px;
-    z-index: 1003; /* Ensure above images */
+    z-index: 1003;
+    opacity: 0.7;
 }
 
 .arrow:hover {
     background-color: var(--arrow-hover-bg);
     transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+}
+
+/* Fade arrows on mobile */
+@media (max-width: 768px) {
+    .arrow {
+        opacity: 0.5;
+    }
+    .arrow:hover {
+        opacity: 1;
+    }
 }
 
 .left-arrow {
