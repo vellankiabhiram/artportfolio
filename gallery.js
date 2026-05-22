@@ -74,6 +74,46 @@ function generateSrcset(sizes) {
         .join(', ');
 }
 
+/**
+ * Decode HTML entities in a string (e.g. "&amp;#39;" -> "'", "&amp;" -> "&").
+ * This is used to clean up image titles/descriptions coming from Imgur that may be double‑escaped.
+ */
+function decodeHTMLEntities(str) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
+}
+
+/**
+ * Reorder images array so that when rendered with a CSS multi‑column layout (column-count: 3)
+ * the visual order appears left‑to‑right, top‑to‑bottom (row‑major).
+ *
+ * The column layout fills each column top‑to‑bottom before moving to the next column.
+ * To achieve a row‑major visual flow we need to rearrange the source array.
+ * This function treats the original array as a matrix with the given number of columns
+ * (default 3) and then maps it to the order expected by the column layout.
+ *
+ * Example for 9 items (3 columns):
+ *   Original (row‑major): [0,1,2,3,4,5,6,7,8]
+ *   Reordered:            [0,3,6,1,4,7,2,5,8]
+ *   Column layout will then render rows as:
+ *     Row0: 0,1,2   Row1: 3,4,5   Row2: 6,7,8
+ */
+function reorderImagesForColumnLayout(images, columns = 3) {
+  const rows = Math.ceil(images.length / columns);
+  const reordered = new Array(images.length);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < columns; c++) {
+      const originalIdx = r * columns + c;
+      if (originalIdx < images.length) {
+        const newIdx = c * rows + r;
+        reordered[newIdx] = images[originalIdx];
+      }
+    }
+  }
+  return reordered;
+}
+
 function displayImages(images) {
     const gallery = document.getElementById('gallery');
     if (!gallery) return;
@@ -126,11 +166,13 @@ function displayImages(images) {
     }, { rootMargin: '200px 0px', threshold: 0.01 });
     
     images.forEach((image, index) => {
+        // Decode any HTML entities in the title for proper display in alt text and ARIA labels
+        const decodedTitle = decodeHTMLEntities(image.title || '');
         const imgContainer = document.createElement('div');
         imgContainer.className = 'gallery-item';
         imgContainer.setAttribute('role', 'button');
         imgContainer.setAttribute('tabindex', '0');
-        imgContainer.setAttribute('aria-label', `View ${image.title || 'artwork'} in full size`);
+        imgContainer.setAttribute('aria-label', `View ${decodedTitle || 'artwork'} in full size`);
         
         // Check if this is a video based on type or extension
         const isVideo = image.type.startsWith('video/') || 
@@ -151,7 +193,7 @@ function displayImages(images) {
         }
         
         img.sizes = "(max-width: 600px) 320px, (max-width: 1000px) 640px, 1024px";
-        img.alt = image.title || 'Artwork';
+        img.alt = decodedTitle || 'Artwork';
         img.loading = 'lazy';
         img.style.filter = 'blur(10px)';
         img.style.opacity = '0.8';
@@ -169,8 +211,8 @@ function displayImages(images) {
             playButton.setAttribute('aria-label', 'Play video');
             imgContainer.appendChild(playButton);
             
-            // Update aria-label to indicate it's a video
-            imgContainer.setAttribute('aria-label', `Play video: ${image.title || 'artwork'}`);
+            // Update aria-label to indicate it's a video, using decoded title
+            imgContainer.setAttribute('aria-label', `Play video: ${decodedTitle || 'artwork'}`);
         }
         
         // Click handler
@@ -242,7 +284,8 @@ function openLightbox(image) {
     
     // Set caption text (title or description)
     const captionText = image.title || image.description || '';
-    caption.textContent = captionText;
+    const decodedCaption = decodeHTMLEntities(captionText);
+    caption.textContent = decodedCaption;
     caption.classList.remove('show');
     
     // Load image
@@ -265,6 +308,8 @@ function openLightbox(image) {
     
     lightboxImg.src = image.url;
     lightbox.style.display = 'block';
+    // Add active class to trigger opacity transition and make lightbox visible
+    lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
@@ -306,12 +351,15 @@ function openVideoLightbox(videoUrl, title = '') {
         lightbox.appendChild(caption);
     }
     
-    caption.textContent = title || '';
+    const decodedTitle = decodeHTMLEntities(title || '');
+    caption.textContent = decodedTitle;
     if (title) {
         caption.classList.add('show');
     }
     
     lightbox.style.display = 'block';
+    // Add active class for video lightbox as well
+    lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
     
     // Cleanup on close
@@ -325,6 +373,8 @@ function closeLightbox() {
     if (!lightbox) return;
     
     lightbox.style.display = 'none';
+    // Remove active class to hide lightbox properly
+    lightbox.classList.remove('active');
     document.body.style.overflow = 'auto';
     
     // Pause and remove any video content
@@ -421,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Map of page names to album IDs
 const albumIds = {
     'index': '7LLqlEz',          // Existing home gallery
-    'sketchbook': '7LLqlEz', // Placeholder for sketchbook
+    'sketchbook': '3y23c8O', // Placeholder for sketchbook
     'concept_art': '7LLqlEz',   // Placeholder for concept art
     'animation': '7LLqlEz' , // Placeholder for animation
 };
@@ -449,6 +499,8 @@ function getPageName() {
     }
 
     await fetchImgurAlbum(albumId);
+    // Reorder images to achieve left-to-right row-major layout with 3 columns
+    images = reorderImagesForColumnLayout(images, 3);
     displayImages(images);
     
     // Set up event listeners with null checks
