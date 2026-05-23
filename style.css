@@ -239,6 +239,11 @@ footer {
     width: 100%;
 }
 
+[data-theme="dark"] footer {
+    background-color: var(--bg-primary);
+    color: var(--header-text);
+}
+
 /* About page styles */
 .about-section {
     max-width: 900px;
@@ -293,7 +298,7 @@ footer {
     column-count: 3;
     column-gap: 20px;
     max-width: 1200px;
-    margin: 20px auto 0; /* Added top margin for consistency */
+    margin: 0 auto; /* Remove top whitespace */
 }
 
 .gallery-item {
@@ -479,12 +484,19 @@ footer {
 
 .video-thumbnail {
     position: relative;
-    overflow: hidden;
+    overflow: default;
+}
+
+/* Crop 30px from the top of video thumbnails in the gallery */
+.video-thumb img {
+    /* Shift the image up to hide the top portion */
+    transform: translateY(-100px);
+    /* Ensure the container hides the overflow */
+    width: 100%;
 }
 
 .video-thumbnail img {
     width: 100%;
-    height: auto;
     display: block;
     transition: transform 0.6s var(--transition-smooth);
 }

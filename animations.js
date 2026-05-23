@@ -28,78 +28,7 @@ async function fetchVideoGallery(source) {
     }
 }
 
-/**
- * Display video gallery in the DOM
- * @param {Array} videos - Array of video objects
- */
-function displayVideoGallery(videos) {
-    const gallery = document.getElementById('gallery');
-    if (!gallery) return;
-    
-    gallery.innerHTML = '';
-    
-    if (videos.length === 0) {
-        gallery.innerHTML = '<div class="error">No videos found</div>';
-        return;
-    }
-    
-    videos.forEach((video, index) => {
-        const container = document.createElement('div');
-        container.className = 'gallery-item video-item';
-        container.setAttribute('role', 'button');
-        container.setAttribute('tabindex', '0');
-        container.setAttribute('aria-label', `Play ${video.title || 'video'}`);
-        
-        // Create thumbnail or video preview
-        const thumbnail = document.createElement('div');
-        thumbnail.className = 'video-thumbnail';
-        
-        if (video.thumbnail) {
-            const img = document.createElement('img');
-            img.src = video.thumbnail;
-            img.alt = video.title || 'Video thumbnail';
-            img.loading = 'lazy';
-            thumbnail.appendChild(img);
-        } else {
-            thumbnail.innerHTML = '<div class="video-placeholder">🎬</div>';
-        }
-        
-        // Play button overlay
-        const playButton = document.createElement('div');
-        playButton.className = 'play-button';
-        playButton.innerHTML = '▶';
-        thumbnail.appendChild(playButton);
-        
-        // Video info
-        const info = document.createElement('div');
-        info.className = 'video-info';
-        info.innerHTML = `
-            <h3>${video.title || 'Untitled'}</h3>
-            ${video.duration ? `<span class="duration">${formatDuration(video.duration)}</span>` : ''}
-        `;
-        
-        container.appendChild(thumbnail);
-        container.appendChild(info);
-        gallery.appendChild(container);
-        
-        // Click handler
-        const handleClick = () => {
-            if (video.type === 'gif' || video.animated) {
-                openLightbox({ url: video.url, title: video.title });
-            } else {
-                openVideoLightbox(video.url, video.title);
-            }
-        };
-        
-        container.addEventListener('click', handleClick);
-        container.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleClick();
-            }
-        });
-    });
-}
+
 
 /**
  * Format duration in seconds to MM:SS
@@ -125,7 +54,7 @@ async function initAnimationGallery() {
     // For now, use the existing image gallery
     // In production, you'd fetch from a video API or database
     const pageName = getPageName();
-    const albumId = albumIds[pageName] || '7LLqlEz';
+    const albumId = albumIds[pageName];
     
     await fetchImgurAlbum(albumId);
     displayImages(images);

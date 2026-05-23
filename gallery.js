@@ -202,18 +202,6 @@ function displayImages(images) {
         img.style.height = 'auto';
         img.style.display = 'block';
         
-        // Create play button overlay for videos
-        if (isVideo) {
-            imgContainer.classList.add('video-item');
-            const playButton = document.createElement('div');
-            playButton.className = 'play-button';
-            playButton.innerHTML = '▶';
-            playButton.setAttribute('aria-label', 'Play video');
-            imgContainer.appendChild(playButton);
-            
-            // Update aria-label to indicate it's a video, using decoded title
-            imgContainer.setAttribute('aria-label', `Play video: ${decodedTitle || 'artwork'}`);
-        }
         
         // Click handler
         const handleClick = () => {
@@ -398,10 +386,13 @@ function closeLightbox() {
     isVideoContent = false;
 }
 
+
 function showNextImage() {
-    currentImageIndex = (currentImageIndex + 1) % images.length;
+    // Jump forward by one column's height
+    currentImageIndex = (currentImageIndex + 1 + images.length) % images.length;
     openLightbox(images[currentImageIndex]);
 }
+
 
 function showPrevImage() {
     currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
@@ -468,12 +459,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Map of page names to album IDs
+// Map of page names to album IDs (page name is derived from the filename without extension)
 const albumIds = {
     'index': '7LLqlEz',          // Existing home gallery
     'sketchbook': '3y23c8O', // Placeholder for sketchbook
     'concept_art': '7LLqlEz',   // Placeholder for concept art
-    'animation': '7LLqlEz' , // Placeholder for animation
+    'animation': 'ODraTKQ',
+    '3d': '7LLqlEz' // 3D page uses same album as home by default; can be customized
 };
 
 // Get current page name from URL
