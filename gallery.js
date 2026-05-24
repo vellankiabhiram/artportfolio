@@ -1,6 +1,7 @@
 let currentImageIndex = 0;
 let images = [];
 let isVideoContent = false;
+;
 
 // Imgur API Client ID (consider moving to environment variable in production)
 const IMGUR_CLIENT_ID = '546c25a59c58ad7';
@@ -320,13 +321,21 @@ function openVideoLightbox(videoUrl, title = '') {
     // Create video container
     const videoContainer = document.createElement('div');
     videoContainer.className = 'lightbox-video-container';
-    
     const video = document.createElement('video');
     video.className = 'lightbox-video';
     video.src = videoUrl;
     video.controls = true;
+    // Safari requires playsinline (and webkit prefix) for proper control interaction
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    // Use metadata preload to allow seeking without full download
+    video.preload = 'metadata';
+    // Do not autoplay; let user start playback to avoid Safari restrictions
+    video.autoplay = false;
+    // Ensure the video is not muted so controls work as expected
+    video.muted = false;
+    video.muted = true;
     video.autoplay = true;
-    video.playsInline = true;
     
     videoContainer.appendChild(video);
     lightbox.appendChild(videoContainer);
@@ -522,7 +531,8 @@ function getPageName() {
         lightboxEl.addEventListener('click', function(e) {
             if (e.target !== document.getElementById('lightbox-img') && 
                 !e.target.closest('.arrow') && 
-                !e.target.closest('#lightbox-caption')) {
+                !e.target.closest('#lightbox-caption') && isVideoContent == false) {
+
                 closeLightbox();
             }
         });
